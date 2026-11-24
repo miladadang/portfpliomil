@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Первый экран — чисто</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111;--grey:#8C8C8C;--card:#EDEDEB;--berry:#9C1548;--blue:#CFE6F7;--caret:#0A84FF}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+/* белая рамка + серая карточка */
+.hero{height:100vh;min-height:760px;padding:20px;background:#fff}
+.card{position:relative;height:100%;border-radius:28px;background:var(--card);overflow:hidden}
+
+/* шапка внутри карточки */
+.nav{position:absolute;z-index:5;top:0;left:0;right:0;display:flex;align-items:center;padding:26px 36px;pointer-events:none}
+.nav a{pointer-events:auto}
+.brand{font-weight:800;font-size:26px;letter-spacing:-.065em;line-height:1}
+.menu{display:flex;gap:22px;margin-left:auto;font-size:14px;color:#444}
+.menu a{position:relative;padding:4px 0;transition:color .2s}
+.menu a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.5px;border-radius:2px;background:var(--ink);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.menu a:hover::after,.menu a.on::after{transform:scaleX(1);transform-origin:left}
+.menu a:hover,.menu a.on{color:var(--ink)}
+.contact{margin-left:28px;background:var(--ink);color:#fff;padding:12px 22px;font-size:14px;font-weight:500;border-radius:99px;transition:.2s}
+.contact:hover{background:var(--berry)}
+
+/* цифры под логотипом */
+.stats{position:absolute;z-index:5;left:36px;top:118px;list-style:none;font-size:16px;font-variant-numeric:tabular-nums;line-height:1.45;letter-spacing:-.01em;color:#5a5a5a}
+.stats b{font-weight:500;color:var(--ink)}
+
+/* текст внизу слева */
+.copy{position:absolute;z-index:5;left:36px;bottom:36px;width:calc(50% - 36px)}
+.pill{display:inline-flex;align-items:center;gap:12px;background:#fff;border-radius:99px;padding:11px 36px 11px 16px;font-size:15px;font-weight:500}
+.pill svg{width:16px;height:16px;fill:var(--berry);animation:spin 6s linear infinite}
+.copy h1{margin-top:16px;font-size:clamp(34px,4vw,58px);line-height:1.04;letter-spacing:-.055em;font-weight:700;white-space:nowrap}
+.copy h1 b{font-weight:700;color:var(--grey);margin-right:.08em}
+/* круг с фото в первой строке */
+.face{display:inline-block;width:1.1em;height:1.1em;margin-left:.32em;border-radius:50%;overflow:hidden;vertical-align:-.2em;background:#fff}
+.face img{width:100%;height:100%;object-fit:cover;object-position:50% 25%;display:block}
+/* печатающееся слово + синий курсор как в macOS */
+.typed{white-space:pre}
+.caret{display:inline-block;width:.06em;min-width:3px;height:.9em;margin-left:.04em;vertical-align:-.08em;border-radius:2px;background:var(--caret)}
+.caret.blink{animation:blink 1.05s steps(1) infinite}
+.hi{margin-top:18px;font-size:16px;line-height:1.45;color:#333}
+.hi span{display:block;text-wrap:pretty}
+/* кнопки — на половину экрана */
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:28px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:99px;background:var(--ink);color:#fff;font-weight:500;font-size:16px;border:1px solid var(--ink);transition:.2s}
+.btn:hover{background:var(--berry);border-color:var(--berry)}
+.btn svg{order:2;width:15px;height:15px;fill:#fff;animation:spin 8s linear infinite}
+.btn.ghost{background:transparent;color:var(--ink);border-color:#c9c9c6}
+.btn.ghost:hover{background:#fff;border-color:#fff}
+
+/* падающие элементы: живут во всей серой карточке */
+.pile{position:absolute;inset:0;z-index:4;pointer-events:none}
+.it{display:inline-block;user-select:none;-webkit-user-select:none}
+.it img,.it svg{display:block;width:100%;height:100%;pointer-events:none}
+.tag{padding:14px 26px;font-weight:500;font-size:clamp(17px,1.55vw,23px);letter-spacing:-.02em;white-space:nowrap;border-radius:99px;background:#fff;color:var(--ink)}
+.tag.k{background:var(--ink);color:#fff}.tag.b{background:var(--blue);color:var(--berry)}.tag.r{background:var(--berry);color:var(--blue)}
+.app{width:78px;height:78px;padding:17px;border-radius:22px;background:#fff}
+.app.k{background:var(--ink)}
+.fig{width:84px;height:84px}
+.folder{width:104px;height:84px}
+.folder img{object-fit:cover;object-position:50% 52%;transform:scale(1.32)}
+.pile:not(.live){display:none}
+.pile.live .it{position:absolute;left:0;top:0;transform:translate(-999px,-999px);pointer-events:auto;cursor:grab;will-change:transform}
+.pile.live .it:active{cursor:grabbing}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%{opacity:1}50%{opacity:0}}
+@media (max-width:900px){
+  .hero{padding:10px}.card{border-radius:20px}.nav{padding:18px 20px}.menu{display:none}
+  .stats{left:20px;top:72px;font-size:15px}
+  .copy{left:20px;right:20px;bottom:24px;width:auto}.copy h1{font-size:32px;white-space:normal}
+}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="card" id="card">
+    <header class="nav">
+      <a class="brand" href="#">milada.dang</a>
+      <nav class="menu"><a class="on" href="#">[главная]</a><a href="#">[проекты]</a><a href="#">[услуги]</a><a href="#">[обучение]</a></nav>
+      <a class="contact" href="#">связаться</a>
+    </header>
+
+    <ul class="stats" id="stats">
+      <li><b>[<span class="num" data-to="3">3</span>+]</b> года в веб-дизайне</li>
+      <li><b>[<span class="num" data-to="40">40</span>+]</b> реализованных проектов</li>
+      <li><b>[<span class="num" data-to="7">7</span>+]</b> стран, с которыми работала</li>
+    </ul>
+
+    <div class="copy" id="copy">
+      <div class="pill"><svg viewBox="-50 -50 100 100"><rect x="-6" y="-48" width="12" height="96"/><rect x="-6" y="-48" width="12" height="96" transform="rotate(45)"/><rect x="-6" y="-48" width="12" height="96" transform="rotate(90)"/><rect x="-6" y="-48" width="12" height="96" transform="rotate(135)"/></svg>открыта к новым проектам на декабрь</div>
+      <h1><b>//</b>Создаю сайты<span class="face"><img src="img/portrait.jpg" alt="Милада"></span><br>с современным дизайном<br>для бизнеса и <span class="typed" id="typed">экспертов</span><span class="caret blink" id="caret"></span></h1>
+      <p class="hi"><span>Привет! Меня зовут Милада, я веб-дизайнер с опытом более 3 лет.</span><span>Я упаковываю стратегию, смыслы и визуал, чтобы с нуля создать сайт,</span><span>который не просто красиво выглядит, а решает задачи вашего бизнеса</span></p>
+      <div class="btns">
+        <a class="btn" href="#"><svg viewBox="-50 -50 100 100"><rect x="-6" y="-48" width="12" height="96"/><rect x="-6" y="-48" width="12" height="96" transform="rotate(45)"/><rect x="-6" y="-48" width="12" height="96" transform="rotate(90)"/><rect x="-6" y="-48" width="12" height="96" transform="rotate(135)"/></svg>обсудить проект</a>
+        <a class="btn ghost" href="#">посмотреть проекты</a>
+      </div>
+    </div>
+
+    <div class="pile" id="pile">
+      <span class="it tag k">[веб-дизайн]</span>
+      <span class="it app" data-shape="box"><svg viewBox="0 0 38 57"><path fill="#1ABCFE" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 1 1-19 0z"/><path fill="#0ACF83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#FF7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#F24E1E" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#A259FF" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg></span>
+      <span class="it tag">[сайты]</span>
+      <span class="it fig" data-shape="circle"><svg viewBox="-50 -50 100 100"><g stroke="var(--ink)" stroke-width="29" stroke-linecap="round"><line x1="0" y1="0" x2="0" y2="-35"/><line x1="0" y1="0" x2="33.3" y2="-10.8"/><line x1="0" y1="0" x2="20.6" y2="28.3"/><line x1="0" y1="0" x2="-20.6" y2="28.3"/><line x1="0" y1="0" x2="-33.3" y2="-10.8"/></g></svg></span>
+      <span class="it tag b">[лендинг]</span>
+      <span class="it tag">[многостраничный сайт]</span>
+      <span class="it folder" data-shape="box"><img src="img/folder.png" alt=""></span>
+      <span class="it tag k">[интернет-магазин]</span>
+      <span class="it app" data-shape="box"><svg viewBox="-50 -50 100 100"><g stroke="#D97757" stroke-width="9" stroke-linecap="round"><line x1="0" y1="0" x2="0" y2="-44"/><line x1="0" y1="0" x2="21" y2="-38"/><line x1="0" y1="0" x2="38" y2="-24"/><line x1="0" y1="0" x2="44" y2="2"/><line x1="0" y1="0" x2="36" y2="26"/><line x1="0" y1="0" x2="17" y2="40"/><line x1="0" y1="0" x2="-5" y2="44"/><line x1="0" y1="0" x2="-27" y2="35"/><line x1="0" y1="0" x2="-42" y2="13"/><line x1="0" y1="0" x2="-41" y2="-15"/><line x1="0" y1="0" x2="-24" y2="-37"/></g></svg></span>
+      <span class="it tag">[digital-дизайн]</span>
+      <span class="it tag">[презентации]</span>
+      <span class="it fig" data-shape="circle"><svg viewBox="-50 -50 100 100"><circle r="50" fill="var(--berry)"/><circle cx="-13.5" cy="-17" r="8.5" fill="var(--blue)"/><circle cx="13.5" cy="-17" r="8.5" fill="var(--blue)"/><path d="M-25.1 -3.3A25.1 25.1 0 0 0 25.1 -3.3" fill="none" stroke="var(--blue)" stroke-width="8.8"/></svg></span>
+      <span class="it tag r">[PDF]</span>
+      <span class="it app k" data-shape="box"><svg viewBox="-50 -50 100 100"><circle r="44" fill="none" stroke="#fff" stroke-width="7"/><path d="M-22 6C-16 -10 -6 -8 0 -1S16 8 22 -8" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg></span>
+      <span class="it tag">[айдентика]</span>
+      <span class="it tag k">[mini app]</span>
+      <span class="it tag">[лого]</span>
+      <span class="it tag b">[посты]</span>
+      <span class="it tag">[визуал]</span>
+    </div>
+  </div>
+</section>
+
+<script>
+/* счётчик на цифрах: от 0 до значения */
+(function(){
+  if(location.hash==='#still'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var nums=[].slice.call(document.querySelectorAll('.num'));
+  nums.forEach(function(n){n.textContent='0'});
+  var t0=null,DUR=1600,DELAY=400;
+  function step(t){
+    if(t0===null)t0=t+DELAY;
+    var p=Math.max(0,Math.min(1,(t-t0)/DUR)),e=1-Math.pow(1-p,3);
+    nums.forEach(function(n){n.textContent=Math.round(+n.dataset.to*e)});
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
+/* печать слова в конце заголовка */
+(function(){
+  var words=['экспертов','онлайн-школ','запусков','магазинов','брендов'];
+  var el=document.getElementById('typed'),caret=document.getElementById('caret');
+  if(location.hash==='#still'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var i=0;
+  function wait(ms,f){caret.classList.add('blink');setTimeout(function(){caret.classList.remove('blink');f()},ms)}
+  function erase(){var t=el.textContent;if(!t){i=(i+1)%words.length;return wait(350,type)}el.textContent=t.slice(0,-1);setTimeout(erase,45)}
+  function type(){var w=words[i],t=el.textContent;if(t===w)return wait(2200,erase);el.textContent=w.slice(0,t.length+1);setTimeout(type,85+Math.random()*60)}
+  wait(2600,erase);
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+window.addEventListener('load',function(){
+  var card=document.getElementById('card'),layer=document.getElementById('pile');
+  if(!window.Matter||matchMedia('(prefers-reduced-motion: reduce)').matches||innerWidth<900)return;
+  var M=Matter,W=card.clientWidth,H=card.clientHeight;
+  layer.classList.add('live');
+
+  // границы = вся серая карточка; текст слева и цифры — невидимые препятствия
+  var PAD=10,T=600;
+  var engine=M.Engine.create({enableSleeping:true,positionIterations:12,velocityIterations:10});
+  engine.gravity.y=1.1;
+  var st={isStatic:true,friction:.6},kr=card.getBoundingClientRect();
+  M.Composite.add(engine.world,[
+    M.Bodies.rectangle(W/2,H-PAD+T/2,W+2*T,T,st),        // пол
+    M.Bodies.rectangle(W/2,PAD-T/2,W+2*T,T,st),          // потолок
+    M.Bodies.rectangle(PAD-T/2,H/2,T,H+2*T,st),          // левая стенка
+    M.Bodies.rectangle(W-PAD+T/2,H/2,T,H+2*T,st)         // правая стенка
+  ]);
+  var right=0;
+  ['copy','stats'].forEach(function(id,n){
+    var el=document.getElementById(id),r=el.getBoundingClientRect(),x=r.left-kr.left-12,y=r.top-kr.top-12,h=r.height+24;
+    var w=Math.max(r.width,el.scrollWidth)+24+(n===0?70:0);   // заголовок шире блока + запас на длинные слова в печати
+    if(n===0)h+=400;                                     // блок с текстом уходит в пол
+    M.Composite.add(engine.world,M.Bodies.rectangle(x+w/2,y+h/2,w,h,st));
+    right=Math.max(right,x+w);
+  });
+
+  // раскладываем всё по полкам в правой части и роняем разом
+  var spawnL=Math.max(W*0.5,right+16),spawnR=W-PAD-6,GAP=14;
+  var els=[].slice.call(layer.children).sort(function(){return Math.random()-.5});
+  var cx=spawnL,cy=PAD+8,rowH=0;
+  var items=els.map(function(el){
+    var w=el.offsetWidth,h=el.offsetHeight;
+    if(cx+w>spawnR){cx=spawnL+Math.random()*30;cy+=rowH+GAP;rowH=0}
+    var x=cx+w/2,y=cy+h/2;cx+=w+GAP+Math.random()*20;rowH=Math.max(rowH,h);
+    var o={restitution:.05,friction:.7,frictionStatic:1,frictionAir:.02,slop:.02,angle:(Math.random()-.5)*.16};
+    var s=el.dataset.shape,b;
+    if(s==='circle')b=M.Bodies.circle(x,y,w/2,o);
+    else if(s==='box')b=M.Bodies.rectangle(x,y,w,h,Object.assign({chamfer:{radius:Math.min(w,h)*.26}},o));
+    else b=M.Bodies.rectangle(x,y,w,h,Object.assign({chamfer:{radius:h/2-1}},o));
+    return {el:el,w:w,h:h,b:b};
+  });
+  M.Composite.add(engine.world,items.map(function(i){return i.b}));
+  if(location.hash==='#still'){for(var k=0;k<700;k++)M.Engine.update(engine,1000/60)}
+
+  var mouse=M.Mouse.create(card);
+  mouse.element.removeEventListener('mousewheel',mouse.mousewheel);
+  mouse.element.removeEventListener('DOMMouseScroll',mouse.mousewheel);
+  M.Composite.add(engine.world,M.MouseConstraint.create(engine,{mouse:mouse,constraint:{stiffness:.18,damping:.1,render:{visible:false}}}));
+
+  // страховка: ограничиваем скорость и возвращаем потерявшихся
+  var MAX=22;
+  function guard(it){
+    var b=it.b,v=b.velocity,s=Math.hypot(v.x,v.y);
+    if(s>MAX)M.Body.setVelocity(b,{x:v.x/s*MAX,y:v.y/s*MAX});
+    var p=b.position;
+    if(p.x<0||p.x>W||p.y<0||p.y>H){M.Body.setPosition(b,{x:(spawnL+spawnR)/2,y:PAD+it.h/2+80});M.Body.setVelocity(b,{x:0,y:0});M.Body.setAngularVelocity(b,0)}
+  }
+
+  var last=performance.now(),acc=0,STEP=1000/60;
+  (function loop(now){
+    acc+=Math.min(100,(now||last)-last);last=now||last;
+    while(acc>=STEP){items.forEach(guard);M.Engine.update(engine,STEP);acc-=STEP}
+    items.forEach(function(i){
+      var x=Math.round((i.b.position.x-i.w/2)*2)/2,y=Math.round((i.b.position.y-i.h/2)*2)/2,a=Math.round(i.b.angle*1000)/1000;
+      i.el.style.transform='translate('+x+'px,'+y+'px) rotate('+a+'rad)';
+    });
+    requestAnimationFrame(loop);
+  })(last);
+  var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(function(){location.reload()},400)});
+});
+</script>
+</body>
+</html>
